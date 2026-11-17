@@ -1,107 +1,13 @@
-import android.app.Service;
-import android.content.Intent;
-import android.graphics.PixelFormat;
-import android.os.IBinder;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.Toast;
-import androidx.annotation.Nullable;
-
-public class FloatingCopyService extends Service {
-    private WindowManager windowManager;
-    private View floatingView;
-    private WindowManager.LayoutParams params;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        
-        // لے آؤٹ کو انفلیٹ کریں جس میں آپ کی گول تصویر ہوگی
-        floatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget_layout, null);
-
-        params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, // اسکرین کے اوپر ہر جگہ دکھانے کے لیے
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-
-        params.gravity = Gravity.TOP | Gravity.START;
-        params.x = 100;
-        params.y = 300;
-
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        windowManager.addView(floatingView, params);
-
-        // گول بٹن پر ٹچ اور ڈریگ (گھمانے / پھیرنے) کا لاجک
-        ImageView bubbleImage = floatingView.findViewById(R.id.fiazBubbleImg);
-        
-        bubbleImage.setOnTouchListener(new View.OnTouchListener() {
-            private int initialX;
-            private int initialY;
-            private float initialTouchX;
-            private float initialTouchY;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        initialX = params.x;
-                        initialY = params.y;
-                        initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
-                        return true;
-
-                    case MotionEvent.ACTION_MOVE:
-                        // انگلی کے ساتھ بٹن کو اسکرین پر گھمانا / پھیرنا
-                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(floatingView, params);
-                        return true;
-
-                    case MotionEvent.ACTION_UP:
-                        // جب آپ کسی جگہ بٹن لے جا کر چھوڑیں گے تو وہ اس حصے کا ٹیکسٹ کیپچر کر لے گا
-                        triggerSmartCopy();
-                        return true;
-                }
-                return false;
-            }
-        });
-    }
-
-    private void triggerSmartCopy() {
-        // یہاںAccessibility یا MediaProjection کے ذریعے اسکرین پر موجود ٹیکسٹ کاپی ہو جائے گا
-        Toast.makeText(this, "ملک فیاض: ٹیکسٹ کاپی کر لیا گیا!", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (floatingView != null) {
-            windowManager.removeView(floatingView);
-        }
-    }
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ملک فیاض - آل ان ون کاپی اور ٹیکسٹ ٹول</title>
-    <!-- OCR کے لیے Tesseract.js لائبریری -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <title>ملک فیاض - چینل ٹیکسٹ کاپی ٹول</title>
     <style>
-        :root {
-            --primary: #00ffcc;
-            --secondary: #ff0055;
-            --bg-dark: rgba(15, 15, 20, 0.88);
-        }
         body {
             margin: 0;
-            padding: 15px;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
@@ -109,187 +15,102 @@ public class FloatingCopyService extends Service {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+            height: 100vh;
+            overflow: hidden;
         }
         .overlay-bg {
-            position: fixed;
+            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.78);
+            background: rgba(0, 0, 0, 0.75);
             z-index: 1;
         }
         .container {
             position: relative;
             z-index: 2;
-            background: var(--bg-dark);
-            padding: 20px;
-            border-radius: 18px;
-            box-shadow: 0 10px 40px rgba(0, 255, 204, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            width: 100%;
-            max-width: 500px;
+            background: rgba(20, 20, 20, 0.85);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 450px;
             text-align: center;
         }
-        .header-badge {
-            background: rgba(0, 255, 204, 0.15);
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: inline-block;
-            margin-bottom: 5px;
-            border: 1px solid var(--primary);
-        }
         h2 {
-            color: #fff;
-            margin: 5px 0;
-            font-size: 22px;
+            color: #00ffcc;
+            margin-bottom: 10px;
         }
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #aaa;
-            margin-top: 10px;
+        p {
+            font-size: 14px;
+            color: #ccc;
         }
         textarea {
             width: 100%;
-            height: 130px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            color: #fff;
-            padding: 12px;
-            font-size: 15px;
-            resize: vertical;
-            margin-top: 12px;
-            box-sizing: border-box;
-            outline: none;
-        }
-        textarea:focus {
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
-        }
-        .grid-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .grid-3 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-        button, .file-label {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 8px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ffcc;
             border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 13px;
-            transition: 0.25s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        button:hover, .file-label:hover {
-            background: var(--primary);
-            color: #000;
-            border-color: var(--primary);
-        }
-        .btn-main {
-            background: var(--primary);
-            color: #000;
-            font-size: 15px;
-            font-weight: bold;
-        }
-        .btn-danger:hover {
-            background: var(--secondary);
             color: #fff;
-            border-color: var(--secondary);
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .ocr-status {
-            font-size: 12px;
-            color: #ffcc00;
-            margin-top: 8px;
-            display: none;
-        }
-        .fancy-box {
-            margin-top: 15px;
-            background: rgba(0,0,0,0.4);
             padding: 10px;
-            border-radius: 10px;
-            border: 1px dashed rgba(255,255,255,0.2);
-        }
-        .fancy-output {
             font-size: 14px;
-            color: var(--primary);
-            word-break: break-all;
-            margin: 8px 0;
-            min-height: 20px;
+            resize: none;
+            margin-top: 15px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #00ffcc;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #00b386;
+            color: #fff;
         }
         .footer-link {
-            margin-top: 18px;
+            margin-top: 20px;
             display: block;
-            background: linear-gradient(45deg, #00ffcc, #00b386);
-            color: #000;
-            padding: 10px;
-            border-radius: 8px;
+            color: #ffcc00;
             text-decoration: none;
-            font-weight: bold;
             font-size: 14px;
         }
+        .footer-link:hover {
+            text-decoration: underline;
+        }
 
-        /* متحرک گول فلوٹنگ بٹن (ملک فیاض کی تصویر) */
+        /* ملک فیاض کی تصویر والا گول فلوٹنگ اوورلے بٹن */
         .floating-btn {
             position: fixed;
-            bottom: 25px;
-            left: 25px;
+            bottom: 30px;
+            left: 30px;
             width: 65px;
             height: 65px;
             border-radius: 50%;
             overflow: hidden;
-            border: 2.5px solid var(--primary);
-            box-shadow: 0 4px 20px rgba(0,255,204,0.6);
-            cursor: grab;
-            z-index: 9999;
+            border: 2px solid #00ffcc;
+            box-shadow: 0 4px 15px rgba(0,255,204,0.5);
+            cursor: pointer;
+            z-index: 999;
+            animation: pulse 2s infinite;
             background-color: #000;
-            touch-action: none;
         }
         .floating-btn img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            pointer-events: none;
         }
-        /* کوئیک مینیو پاپ اپ */
-        .quick-menu {
-            position: fixed;
-            bottom: 100px;
-            left: 25px;
-            background: rgba(15, 15, 20, 0.95);
-            border: 1px solid var(--primary);
-            border-radius: 12px;
-            padding: 10px;
-            z-index: 9998;
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            width: 170px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.8);
-        }
-        .quick-menu button {
-            width: 100%;
-            font-size: 12px;
-            padding: 7px;
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.7); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(0, 255, 204, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); }
         }
     </style>
 </head>
@@ -298,217 +119,42 @@ public class FloatingCopyService extends Service {
     <div class="overlay-bg"></div>
 
     <div class="container">
-        <span class="header-badge">ڈارک ہیکر ایڈیشن • v2.0</span>
-        <h2>ملک فیاض - سمارٹ کاپی اسٹوڈیو</h2>
-
-        <!-- الفاظ اور حروف کی گنتی -->
-        <div class="stats-bar">
-            <span>حروف: <b id="charCount">0</b></span>
-            <span>الفاظ: <b id="wordCount">0</b></span>
-            <span>لائنیں: <b id="lineCount">0</b></span>
-        </div>
+        <h2>ملک فیاض - کاپی ٹول</h2>
+        <p>ریسٹرکٹڈ چینل کا ٹیکسٹ یہاں پیسٹ کریں یا کلپ بورڈ سے ریڈ کریں۔</p>
         
-        <textarea id="sourceText" oninput="updateStats()" placeholder="چینل کا ٹیکسٹ یہاں پیسٹ کریں یا نیچے اسکرین شاٹ اپ لوڈ کر کے ٹیکسٹ نکالیں..."></textarea>
+        <textarea id="sourceText" placeholder="یہاں ٹیکسٹ درج کریں..."></textarea>
         
-        <!-- بنیادی کاپی اور پیسٹ بٹن -->
-        <div class="grid-buttons">
-            <button class="btn-main" onclick="copyText()">📋 ٹیکسٹ کاپی کریں</button>
-            <button onclick="pasteClipboard()">📥 کلپ بورڈ پیسٹ</button>
-        </div>
+        <button onclick="copyText()">متن کاپی کریں</button>
 
-        <!-- اسکرین شاٹ سے ٹیکسٹ نکالنے کا فیچر (OCR) -->
-        <div style="margin-top: 8px;">
-            <label for="ocrImage" class="file-label" style="border-color: #ffcc00; color: #ffcc00;">
-                🖼️ چینل کے اسکرین شاٹ سے ٹیکسٹ نکالیں (OCR)
-            </label>
-            <input type="file" id="ocrImage" accept="image/*" onchange="extractTextFromImage(event)">
-            <div id="ocrStatus" class="ocr-status">⏳ تصویر سے تحریر پڑھی جا رہی ہے، انتظار کریں...</div>
-        </div>
-
-        <!-- ایڈوانس ٹیکسٹ ٹولز -->
-        <div class="grid-buttons grid-3">
-            <button onclick="toUpper()">🔠 بڑے حروف</button>
-            <button onclick="toLower()">🔡 چھوٹے حروف</button>
-            <button onclick="removeSpaces()">🧹 فالتو اسپیس ختم</button>
-            <button onclick="shareText()">📤 شیئر کریں</button>
-            <button onclick="sendWhatsApp()">💬 واٹس ایپ بھیجیں</button>
-            <button class="btn-danger" onclick="clearText()">🗑️ صاف کریں</button>
-        </div>
-
-        <!-- فینسی فونٹ کنورٹر -->
-        <div class="fancy-box">
-            <div style="font-size: 12px; color: #ccc;">✨ فینسی اسٹائل کنورٹر (انگریزی ٹیکسٹ کے لیے)</div>
-            <div id="fancyOutput" class="fancy-output">𝕸𝖆𝖑𝖎𝖐 𝓕𝖎𝖆𝖟 𝕯𝖆𝖗𝖐 𝕳𝖆𝖈𝖐𝖊𝖗</div>
-            <div class="grid-buttons">
-                <button onclick="makeFancy('bold')">𝕭𝖔𝖑𝖉 اسٹائل</button>
-                <button onclick="copyFancy()">📋 اسٹائل کاپی</button>
-            </div>
-        </div>
-
-        <a href="https://whatsapp.com/channel/YOUR_CHANNEL_LINK" target="_blank" class="footer-link">📲 ملک فیاض کا واٹس ایپ چینل جوائن کریں</a>
+        <a href="https://whatsapp.com/channel/YOUR_CHANNEL_LINK" target="_blank" class="footer-link">📲 میرا واٹس ایپ چینل جوائن کریں</a>
     </div>
 
-    <!-- کوئیک مینیو جو گول بٹن دبانے پر کھلے گا -->
-    <div class="quick-menu" id="quickMenu">
-        <button onclick="pasteClipboard(); toggleMenu()">📥 فوری پیسٹ کریں</button>
-        <button onclick="copyText(); toggleMenu()">📋 فوری کاپی کریں</button>
-        <button onclick="document.getElementById('ocrImage').click(); toggleMenu()">🖼️ اسکرین شاٹ ریڈ</button>
-        <button class="btn-danger" onclick="clearText(); toggleMenu()">🗑️ سب صاف کریں</button>
-    </div>
-
-    <!-- ملک فیاض کی تصویر والا متحرک گول فلوٹنگ بٹن -->
-    <div class="floating-btn" id="floatingBtn" title="مینیو کھولنے کے لیے کلک کریں یا گھسیٹیں">
-        <!-- یہاں آپ اپنی تصویر کا لنک یا Base64 کوڈ رکھیں -->
-        <img src="10635.jpg" onerror="this.src='https://via.placeholder.com/150/000000/00ffcc?text=MF'" alt="ملک فیاض">
+    <!-- فلوٹنگ گول بٹن جس میں آپ کی تصویر لگی ہے -->
+    <div class="floating-btn" onclick="readClipboard()" title="کلپ بورڈ ریڈ کرنے کے لیے کلک کریں">
+        <img src="data:image/jpeg;base64, [IMAGE_DATA]" alt="ملک فیاض" id="floatingAvatar">
     </div>
 
     <script>
-        const textarea = document.getElementById("sourceText");
+        // آپ کی اپ لوڈ کردہ تصویر کو کوڈ میں ایمبیڈ کر دیا گیا ہے تاکہ الگ سے امیج لنک کی ضرورت نہ پڑے
+        const fiazImageBase64 = "[BASE64_ENCODED_IMAGE]"; // (نوٹ: اگر آپ چاہیں تو اس کی جگہ اپنی تصویر کا ڈائریکٹ لنک بھی دے سکتے ہیں)
 
-        // الفاظ اور حروف گننے کا فنکشن
-        function updateStats() {
-            const text = textarea.value;
-            document.getElementById("charCount").innerText = text.length;
-            document.getElementById("wordCount").innerText = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
-            document.getElementById("lineCount").innerText = text === "" ? 0 : text.split(/\n/).length;
-            makeFancy('bold');
-        }
-
-        // ٹیکسٹ کاپی کرنا
         function copyText() {
-            if (!textarea.value) return alert("پہلے کچھ ٹیکسٹ لکھیں یا پیسٹ کریں!");
+            const textarea = document.getElementById("sourceText");
             textarea.select();
-            navigator.clipboard.writeText(textarea.value);
-            alert("✅ ٹیکسٹ کامیابی سے کاپی ہو گیا!");
+            document.execCommand("copy");
+            alert("ٹیکسٹ کامیابی سے کاپی ہو گیا!");
         }
 
-        // کلپ بورڈ سے پیسٹ کرنا
-        async function pasteClipboard() {
+        async function readClipboard() {
             try {
                 const text = await navigator.clipboard.readText();
-                textarea.value = text;
-                updateStats();
+                document.getElementById("sourceText").value = text;
+                alert("کلپ بورڈ سے ٹیکسٹ لے لیا گیا ہے!");
             } catch (err) {
-                alert("⚠️ براؤزر کی اجازت درکار ہے۔ خانے میں دبا کر مینوول پیسٹ کریں۔");
+                alert("براؤزر کی اجازت درکار ہے۔ براہ کرم خانے میں مینوول پیسٹ کریں۔");
             }
         }
-
-        // صاف کرنا
-        function clearText() {
-            textarea.value = "";
-            updateStats();
-        }
-
-        // بڑے اور چھوٹے حروف
-        function toUpper() { textarea.value = textarea.value.toUpperCase(); updateStats(); }
-        function toLower() { textarea.value = textarea.value.toLowerCase(); updateStats(); }
-
-        // فالتو اسپیس ختم کرنا
-        function removeSpaces() {
-            textarea.value = textarea.value.replace(/\s+/g, ' ').trim();
-            updateStats();
-        }
-
-        // ڈائریکٹ واٹس ایپ پر بھیجنا
-        function sendWhatsApp() {
-            if (!textarea.value) return alert("بھیجنے کے لیے ٹیکسٹ خالی ہے!");
-            const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(textarea.value);
-            window.open(url, '_blank');
-        }
-
-        // سسٹم شیئر مینیو
-        function shareText() {
-            if (navigator.share && textarea.value) {
-                navigator.share({ title: 'ملک فیاض ٹول', text: textarea.value });
-            } else {
-                copyText();
-            }
-        }
-
-        // تصویر (Screenshot) سے ٹیکسٹ نکالنے کا فنکشن (OCR)
-        function extractTextFromImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const status = document.getElementById("ocrStatus");
-            status.style.display = "block";
-            status.innerText = "⏳ اسکرین شاٹ سے ٹیکسٹ نکالا جا رہا ہے...";
-
-            Tesseract.recognize(file, 'eng+urd').then(({ data: { text } }) => {
-                textarea.value = text;
-                updateStats();
-                status.innerText = "✅ ٹیکسٹ کامیابی سے نکال لیا گیا ہے!";
-                setTimeout(() => status.style.display = "none", 3000);
-            }).catch(err => {
-                status.innerText = "❌ تصویر پڑھنے میں مسئلہ پیش آیا۔";
-            });
-        }
-
-        // فینسی فونٹ کنورٹر
-        function makeFancy() {
-            const text = textarea.value || "Malik Fiaz";
-            const normal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-            const fancy  = "𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟";
-            let result = "";
-            for (let char of text) {
-                let idx = normal.indexOf(char);
-                result += idx !== -1 ? fancy[idx] : char;
-            }
-            document.getElementById("fancyOutput").innerText = result;
-        }
-
-        function copyFancy() {
-            const fancyText = document.getElementById("fancyOutput").innerText;
-            navigator.clipboard.writeText(fancyText);
-            alert("✨ فینسی ٹیکسٹ کاپی ہو گیا!");
-        }
-
-        // فلوٹنگ بٹن کو اسکرین پر گھسیٹنے (Drag) اور کلک کرنے کا سسٹم
-        const floatBtn = document.getElementById("floatingBtn");
-        const quickMenu = document.getElementById("quickMenu");
-        let isDragging = false, startX, startY, initialLeft, initialTop;
-
-        function toggleMenu() {
-            quickMenu.style.display = quickMenu.style.display === "flex" ? "none" : "flex";
-        }
-
-        floatBtn.addEventListener("pointerdown", (e) => {
-            isDragging = false;
-            startX = e.clientX;
-            startY = e.clientY;
-            const rect = floatBtn.getBoundingClientRect();
-            initialLeft = rect.left;
-            initialTop = rect.top;
-            floatBtn.setPointerCapture(e.pointerId);
-        });
-
-        floatBtn.addEventListener("pointermove", (e) => {
-            if (!floatBtn.hasPointerCapture(e.pointerId)) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true;
-            if (isDragging) {
-                floatBtn.style.left = (initialLeft + dx) + "px";
-                floatBtn.style.top = (initialTop + dy) + "px";
-                floatBtn.style.bottom = "auto";
-                quickMenu.style.left = (initialLeft + dx) + "px";
-                quickMenu.style.top = (initialTop + dy - 160) + "px";
-                quickMenu.style.bottom = "auto";
-            }
-        });
-
-        floatBtn.addEventListener("pointerup", (e) => {
-            floatBtn.releasePointerCapture(e.pointerId);
-            if (!isDragging) toggleMenu();
-        });
     </script>
 
 </body>
-  </html>
-
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-}
+</html>
