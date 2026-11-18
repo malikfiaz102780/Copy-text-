@@ -1,100 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malik Fiaz - Cross-App Floating Logo Manager</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-red-500 selection:text-white">
-
-    <!-- Header Section -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <!-- Dual Avatar Container for Malik Fiaz -->
-                <div class="flex -space-x-3 overflow-hidden">
-                    <img class="inline-block h-12 w-12 rounded-full ring-2 ring-red-500 object-cover" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" alt="Malik Fiaz 1">
-                    <img class="inline-block h-12 w-12 rounded-full ring-2 ring-blue-500 object-cover" src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80" alt="Malik Fiaz 2">
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">ملک فیاض (Malik Fiaz)</h1>
-                    <p class="text-xs text-slate-400">Cross-App Floating Logo Controller</p>
-                </div>
-            </div>
-
-            <!-- WhatsApp Channel Link -->
-            <a href="https://whatsapp.com" target="_blank" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md">
-                <i class="fa-brands fa-whatsapp text-lg"></i>
-                <span>WhatsApp Channel</span>
-            </a>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-8 space-y-6">
-
-        <!-- Global Floating Logo Switch Card -->
-        <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-200">System-Wide Floating Logo (Background Service)</h2>
-                    <p class="text-sm text-slate-400">Is option ko ON karne se Malik Fiaz ka dual-pic logo website ke bahar bhi baaki apps par show hoga.</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <!-- JavaScript Bridge Trigger for Native Android App -->
-                    <input type="checkbox" id="globalFloatingToggle" class="sr-only peer">
-                    <div class="w-14 h-7 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600"></div>
-                    <span id="toggleText" class="ml-3 text-sm font-medium text-slate-300">OFF</span>
-                </label>
-            </div>
-            
-            <div id="statusMessage" class="mt-4 p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400">
-                Status: <span class="text-amber-400 font-bold">Floating Service Disconnected (Requires APK compilation with SYSTEM_ALERT_WINDOW permission)</span>
-            </div>
-        </section>
-
-        <!-- Preview of Malik Fiaz Dual-Pic Logo -->
-        <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl text-center">
-            <h3 class="text-sm font-semibold text-slate-300 mb-4">Logo Preview (Aisa logo baaki apps par floating karega)</h3>
-            <div class="inline-flex flex-col items-center p-3 bg-slate-950 rounded-full border border-red-500/50 shadow-lg">
-                <div class="flex items-center space-x-1">
-                    <img class="h-10 w-10 rounded-full object-cover border border-white/20" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" alt="Fiaz 1">
-                    <img class="h-10 w-10 rounded-full object-cover border border-white/20 -ml-4" src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80" alt="Fiaz 2">
-                </div>
-                <span class="text-[10px] text-red-300 mt-1 font-mono">ملک فیاض</span>
-            </div>
-        </section>
-    </main>
-
-    <!-- JavaScript Bridge / UI Logic -->
-    <script>
-        const toggle = document.getElementById('globalFloatingToggle');
-        const toggleText = document.getElementById('toggleText');
-        const statusMessage = document.getElementById('statusMessage');
-
-        toggle.addEventListener('change', function() {
-            if (this.checked) {
-                toggleText.innerText = "ON";
-                toggleText.className = "ml-3 text-sm font-medium text-emerald-400";
-                statusMessage.innerHTML = 'Status: <span class="text-emerald-400 font-bold">Floating Logo Activated! (If wrapped in Android APK, service is now drawing over other apps).</span>';
-                
-                // Android WebView JavaScript Interface Bridge (Agar aap Android App mein webview use karein)
-                if (window.AndroidBridge && typeof window.AndroidBridge.startFloatingService === 'function') {
-                    window.AndroidBridge.startFloatingService();
-                }
-            } else {
-                toggleText.innerText = "OFF";
-                toggleText.className = "ml-3 text-sm font-medium text-slate-300";
-                statusMessage.innerHTML = 'Status: <span class="text-amber-400 font-bold">Floating Service Stopped.</span>';
-                
-                if (window.AndroidBridge && typeof window.AndroidBridge.stopFloatingService === 'function') {
-                    window.AndroidBridge.stopFloatingService();
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Malik Fiaz Appeal</title><style>
+:root{--n:#f0f;--c:#0ef;--g:#0f4}*{box-sizing:border-box}body{background:radial-gradient(circle,#250033,#100018,#07000b);color:#ddd;font-family:Consolas,monospace;padding:12px}.wrap{max-width:620px;margin:4vh auto;padding:18px;border:3px solid var(--n);border-radius:22px;box-shadow:0 0 12px var(--n}h1{text-align:center;color:var(--c);text-shadow:0 0 10px var(--c);font-size:clamp(20px,5vw,30px)}h2{text-align:center;color:var(--n)}.page{display:none}.page.active{display:block}.note,.box{border:1px solid #ffb900;padding:12px;border-radius:10px;text-align:center;margin:12px 0}.box{border-color:var(--c);background:#091020}.box a{color:var(--c)}label{display:block;color:var(--c);margin:12px 0 6px}input,textarea{width:100%;padding:14px;background:#08000e;color:#eee;border:2px solid var(--c);border-radius:10px;font:inherit}button{width:100%;padding:15px;margin:10px 0;background:#08000e;border:2px solid var(--n);color:var(--n);border-radius:10px;font:inherit;cursor:pointer}button.c{border-color:var(--c);color:var(--c)}button.g{border-color:var(--g);color:var(--g)}.colors{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.dot{width:28px;height:28px;border-radius:50%;border:2px solid white;cursor:pointer}.small{text-align:center;color:#7cc;font-size:12px;line-height:1.7}.footer{text-align:center;color:#786;font-size:12px;margin-top:20px}
+</style></head><body><main class="wrap"><h1>MALIK FIAZ • APPEAL</h1><div style="text-align:center;color:var(--n);font-size:30px">☠</div><div class="note">Appeal helper — no passwords, OTPs, or security PINs. Review times are not guaranteed.</div><h2>🎨 COLORS</h2><div class="colors"><span class="dot" style="background:#f0f" onclick="theme('#f0f')"></span><span class="dot" style="background:#0ef" onclick="theme('#0ef')"></span><span class="dot" style="background:#f34" onclick="theme('#f34')"></span><span class="dot" style="background:#0f4" onclick="theme('#0f4')"></span><span class="dot" style="background:#ffb900" onclick="theme('#ffb900')"></span><span class="dot" style="background:#96f" onclick="theme('#96f')"></span><span class="dot" style="background:#f80" onclick="theme('#f80')"></span><span class="dot" style="background:white" onclick="theme('#fff')"></span></div>
+<section class="page active" id="p1"><div class="box">👥 FIRST: FOLLOW MALIK FIAZ CHANNEL<br><p>Updates & posts</p><a href="https://whatsapp.com/channel/0029VbDFAIv8vd1SmiyHe02l" target="_blank">📲 OPEN CHANNEL</a></div><button onclick="go(2)">I FOLLOWED — CONTINUE</button><p class="small">Follow cannot be verified by this page.</p></section>
+<section class="page" id="p2"><h2>📱 STEP 1 — NUMBER</h2><label>WhatsApp number, country code included</label><input id="phone" placeholder="+92..." type="tel"><button onclick="go(3)">CONTINUE →</button><button class="c" onclick="go(1)">← BACK</button></section>
+<section class="page" id="p3"><h2>📧 STEP 2 — EMAIL</h2><label>Your email address</label><input id="email" type="email" placeholder="you@example.com"><button onclick="go(4)">CONTINUE →</button><button class="c" onclick="go(2)">← BACK</button></section>
+<section class="page" id="p4"><h2>🔐 STEP 3 — 16 DIGIT CODE</h2><p class="small">This is only a reference code, not an account password, OTP, or PIN.</p><input id="code" inputmode="numeric" maxlength="16" placeholder="Exactly 16 digits"><button onclick="createDraft()">CONTINUE →</button><button class="c" onclick="go(3)">← BACK</button></section>
+<section class="page" id="p5"><h2>✉️ APPEAL DRAFT</h2><div class="box">⏱️ Estimated review window: 28 hours — NOT GUARANTEED.<br>No request is sent until you review and send it in your email app.</div><textarea id="draft" rows="12" readonly></textarea><button class="g" onclick="emailApp()">📧 OPEN EMAIL APP</button><button onclick="go(4)">← EDIT DETAILS</button><button class="c" onclick="resetAll()">START OVER</button></section><div class="footer">MALIK FIAZ • NEON EDITION</div></main>
+<script>
+function theme(x){document.documentElement.style.setProperty('--n',x)}
+function go(n){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));document.getElementById('p'+n).classList.add('active')}
+function createDraft(){let ph=phone.value.trim(),em=email.value.trim(),co=code.value.trim();if(!ph){alert('Enter phone number');return}if(!em||!email.checkValidity()){alert('Enter a valid email');return}if(!/^\d{16}$/.test(co)){alert('Reference code must be exactly 16 digits. Do not use a password or OTP.');return}draft.value=`Hello WhatsApp Support,\n\nI request a review of my WhatsApp account linked to ${ph}. I believe the restriction may have been applied by mistake. Please review my account and advise the next steps.\n\nContact email: ${em}\nReference code: ${co}\n\nThank you.`;go(5)}
+function emailApp(){if(!draft.value){alert('Create appeal text first');return}location.href='mailto:support@whatsapp.com?subject='+encodeURIComponent('WhatsApp account review request')+'&body='+encodeURIComponent(draft.value)}
+function resetAll(){phone.value=email.value=code.value=draft.value='';go(1)}
+</script></body></html>
